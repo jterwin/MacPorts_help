@@ -1,0 +1,502 @@
+%\documentclass[11pt, titlepage]{article}
+\documentclass[11pt]{article}
+
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+
+\usepackage{xcolor}
+\definecolor{light-gray}{gray}{0.90}
+
+
+\usepackage{listings}
+\lstdefinestyle{Bash}
+{	language=bash,
+	%keywordstyle=\color{red},
+	backgroundcolor=\color{light-gray},
+	basicstyle=\ttfamily,
+	xleftmargin=.25in,
+	xrightmargin=.25in,
+	breaklines=true,
+	literate={\$}{{\textcolor{blue}{\$}}}1 
+}
+
+\usepackage{titlesec}
+\newcommand{\sectionbreak}{\clearpage}
+
+
+
+
+\title{Macport help}
+\author{Justin Erwin}
+\date{updated: \today}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This is my guide to installing gfortran, MPI,  and NumPy/SciPy/Matplotlib on my Mac. I will use the package manager Macports for this since it will download, compile, and link any necessary software for my needs. It also installs the software in the in the \textit{/opt} folder and leaves \textit{/usr} alone so that the default Mac compilers and Python are unaffected.
+
+For post-processing and plotting data, I now use Python and its suite of tools.  In particular Matplotlib is an excellent replacement for MatLab-like plotting (but in my humble opinion better and more customizable), and NumPy and SciPy offer a suite of numerical procedures and special math function. IPython is a more user-friendly command line interface for Python, with nice feature like tab suggestions. Spyder is an IDE (like Matlab or IDL) that uses IPython as the command prompt and with Numpy, SciPy and MaplotLib loaded automatically for numerics and plotting.
+
+Lastly I found Macports can be used to install Latex with a much smaller footprint then MacTex, and rolling the update into Macports update is convenient. 
+\end{abstract}
+
+
+%
+%
+%
+\tableofcontents
+
+
+%
+%
+%
+\section{Install MacPort}
+This section may change slightly depending on your Mac version. I am now happily on 10.9 Mavericks and therefor the instruction below represent that install. 
+\subsection{Xcode}
+First we need to get Xcode up an running. This is the develop IDL for Apple's computer and mobile platforms. Before we can use it from the we have to:
+\begin{enumerate}
+	\item Install Xcode from the Mac App Store.
+	\item Accept the Xcode license agreement. Simply open Xcode and click through the menus for it to be happy.
+	\item Install command line tools. This lets us use some of the packaged tools inside of Xcode from the command line, including clang, llvm, and probably others. New to Mavericks, this is done by entering the following into the terminal:
+\end{enumerate}
+\begin{lstlisting}[style=Bash]
+$ xcode-select --install
+\end{lstlisting}
+This last step will differ depending on you OS. In some previous versions on Mac, the command line tools were install via "Preferences->Downloads", so figure out how to work with your install.
+
+\subsection{MacPorts}
+Again just a couple simple steps here
+\begin{enumerate}
+	\item Get the MacPorts installer (\url{http://www.macports.org/install.php}) and run it. 
+	\item Then run an update to get the most current list of ports (called the tree). Enter the following into the command line:
+\end{enumerate}
+\begin{lstlisting}[style=Bash]
+$ sudo port selfupdate
+\end{lstlisting}
+Notice the use of "sudo", and that it will require you to enter your password. This is "super user do", and runs the following command with higher privileges (or root). Be careful with "sudo", and use only when you know what you're doing since it can modify anything on your computer. Let's just hope MacPorts has the kinks worked out.
+
+Now your ready to get some ports. It should have automatically updated your path in your \textit{.profile} file. You might also set some aliases here.  For example, I use AquaMacs as a text editor, and I set up some common calls to ls, so I have the following lines in my \textit{.profile}
+\begin{lstlisting}[backgroundcolor=\color{light-gray},basicstyle=\ttfamily,xleftmargin=.25in,xrightmargin=.25in]
+# aliases for programs
+alias amacs="open -a /Applications/Aquamacs.app/"
+
+# ls with options
+alias ll="ls -lh"
+alias la="ls -lah"
+\end{lstlisting}
+
+
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\section{Get your compiler(s)}
+\subsection{Install gcc}
+There are many versions of gcc available, and I see no reason not to just get the current one. But depending on your projects and code, you may want to download a specific one that is known to be supported for your code. Also consider that many other ports may depend on gcc, and may have many variants to support different versions of \textit{gcc}. For example many Python modules depend on gcc, so you may want to look at the many python modules that you want and find that latest gcc version that they will support. Read the optional section below to set your configuration to have a default variant to avoid accidentally downloading multiple version of \textit{gcc}. 
+
+The latest stable version of gcc available via MacPorts is 4.8. So to install gcc 4.8, just type
+\begin{lstlisting}[style=Bash]
+$ sudo port install gcc48
+\end{lstlisting}
+Be prepared to sit back and wait. Depending on your computer this can take several hours of using 90 percent CPU. Just let it go and don't let the battery die.
+
+Now select this compiler. First try:
+\begin{lstlisting}[style=Bash]
+$ gcc -v
+    ->shows using Xcode's gcc version 4.2.1
+$ gfortran -v 
+    ->doesn't work
+\end{lstlisting}
+So we are not yet using the new \textit{gcc}. Lets see that its installed
+\begin{lstlisting}[style=Bash]
+$ port select --list gcc
+Available versions for gcc:
+	mp-gcc48
+	none (active)
+\end{lstlisting}
+We see that we have two options, but haven't told MacPorts which one we want to use. The \textit{none} option is the Apple supplied \textit{gcc}, and the \textit{mp-gcc48} is the new MacPorts \textit{gcc}. To select the new one, type in
+\begin{lstlisting}[style=Bash]
+$ sudo port select --set gcc mp-gcc48
+\end{lstlisting}
+Test this
+\begin{lstlisting}[style=Bash]
+$ gcc -v
+    ->shows using Macports' gcc 4.8.5
+$ gfortran -v
+    ->the same
+\end{lstlisting}
+Now your ready. 
+
+(NOTE: the 'port select --set' make symbolic links to the correct gcc executable. Sometimes these don't get updated immediately. If you see the result of 'gcc -v' doesn't change, try opening a new terminal and see if it works. Its amazing what turning it off and on again can fix.)
+
+
+\subsubsection{Set default MacPorts variant (optional)}
+Most ports in MacPorts depend on other ports, and further there are different variants we can add/choose from to set a particular dependent. The great thing about MacPorts is it keeps track of all these dependents and variants and will install exactly what you need. Unfortunately, when there are many different variants, there is also a default variant that has no clue about what we have already installed. For our purposes, I am concerned about which variant of \textit{gcc4x} the python ports are going to use. (For instance, \textit{py27-scipy} needs \textit{gfortran} so it depends on a \textit{gcc} port. The default variant for \textit{py27-scipy} could be \textit{gcc45}, and will download and build \textit{gcc45} if your not careful.)
+
+In order to get subsequent ports to use the \textit{gcc48} port we installed we can add the \textit{+gcc48} variant flag during the install. But checking every port that we want to install for variants, while probably good practice, can be cumbersome. There is a file \textit{/opt/local/etc/MacPorts/variants.config} that is the place to put the default variants we want to use, and will be applied to any port we try to install. If we add a variant and it doesn't exist for a particular port, then it will just be ignored.  
+
+But this file is protected by system privileges. You can use the \textit{Finder$\rightarrow$Get Info} to change the privileges and then modify, or you can just run the following command to add to end of the file.
+\begin{lstlisting}[style=Bash]
+$ echo "+gcc48" | sudo tee -a /opt/local/etc/macports/variants.conf
+\end{lstlisting}
+I also put "+atlas" to get the accelerate linear algebra routines, but it not necessary.
+
+
+\subsection{Install MPICH}
+I like to have the ability to develop and test MPI codes on my laptop. There are two popular options, MPICH and OPENMPI, and for most users the differences are not apparent. So I choose OPENMPI because this is the one installed on my universities clusters, so this is the one I choose:
+\begin{lstlisting}[style=Bash]
+$ sudo port install openmpi
+\end{lstlisting}
+Since I set "+gcc48" in my variants.conf, I know it is compiling towards the correct compiler. Now you should have \textit{mpif90} and \textit{mpiexec} installed (look at \textit{/opt/local/bin} for other mpi function you need).
+
+
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\section{Python}
+\subsection{Install Python and modules}
+There are two parts the to install, first is the \textit{python} port.  I am choosing Python 2.7 since some scientific packages do not support Python 3.x yet (n.b. Python 3.4 is latest Python 3 version available via Macports and support all the components I list here. Know that the  \textit{print} syntax has change between Python 2 and Python 2$\rightarrow$ frustrating, but this can be dealt with by using the \_\_future\_\_ module). So I choose the port \textit{python27}. 
+
+Second are all the module add-ons for Python, and these are named \textit{py27-*} so that you know that they run on certain version of Python. To get everything we can just run
+\begin{lstlisting}[style=Bash]
+$ sudo port install python27 py27-numpy py27-scipy py27-matplotlib
+$ sudo port install py27-ipython +pyqt4 -scientific
+\end{lstlisting}
+Note that this will install many other python modules that these ones depend on, but don't worry the glory of MacPorts is that is handles all of this for you, it will just take some time. Be careful, since SciPy requires a \textit{gcc} version for \textit{gfortran}. So if you haven't set your \textit{variants.config} file, you may download and install another compiler (this can increase the full build time considerably, and having two versions of gcc requires extra space and increases the update times). Also I added some specific variant options for {\it ipython} which you may or may not want. 
+
+Like with gcc we need to select the new python installs as the default:
+\begin{lstlisting}[style=Bash]
+$ sudo port select --set python python27
+$ sudo port select --set ipython ipython27
+\end{lstlisting}
+to set the Python/IPython versions to the new ones. Now you can run your python scripts using "python myscipt.py", which will invoke your freshly installed Macports python with all your installed packages.
+
+(Note: to uses IPython excellent notebook feature (installed as a default variant), you may want to install "pandoc" to be able to save these a pdfs to print and share. pandoc is also very good to convert between many document types, including rst, doc, tex, etc.).
+
+
+
+\subsection{Installing modules not in Macports}
+Some package we may want are not available in the Macports repository (for example some scientific packages made by collaborators). But there are other ways to install packages so that our Macports Python can use them, but we need to be careful about the installation path. We do not want to install packages in the same folder that Macports uses, namely:
+\begin{lstlisting}[style=Bash]
+/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
+\end{lstlisting}
+Rather, we should install packages in our User directory in a place Python will look:
+\begin{lstlisting}[style=Bash]
+~/Library/Python/2.7/lib/python/site-packages
+\end{lstlisting}
+This way Macports will not mess with these installations, and vice versa. 
+
+
+
+\subsubsection{Pip}
+{\it Pip} is a program written to install packages from the Python Package Index (PyPI) using {\it easy\_install}. It has the ability to install necessary dependencies to build a package, much like Macports. 
+
+To install pip
+\begin{lstlisting}[style=Bash]
+$ sudo port install py27-pip
+$ sudo port select --set pip pip27
+\end{lstlisting}
+Like many Python packages in Macports we need to select the active version.
+
+Now we can install packages using {\it pip}:
+\begin{lstlisting}[style=Bash]
+$ pip install --user coveralls
+\end{lstlisting}
+Here {\it coveralls} is a package that is not available in Macports. The "-{}-user" flag tells {\it pip} (and transitively {\it easy\_install}) to install to the User {\it site-packages} folder. As far as dependencies, it will search for any dependencies to see if its installed already, and then it will download and install any needed packages. In this case, it found the port {\it coverage} was already installed (by Macports into the /opt/local site-packages folder), and then it installed {\it docopt} and {\it PyYAML} packages needed by {\it coveralls} before installing {\it coveralls} itself (all of these to the User site-packages folder).
+
+
+
+\subsubsection{From source}
+We can install even more packages that may not be in the Macports or PyPI repositories if we have there source package and it has a setup.py script that uses {\it distutils} or {\it setuptools} (which themselves are used by pip). Neither of these will install dependencies for you, you must install them yourself before you try to install a package from source.
+
+For example, I want to uses the package SpiceyPy available on Github. I get the source
+\begin{lstlisting}[style=Bash]
+$ cd ~/lib/python
+$ git clone https://github.com/AndrewAnnex/SpiceyPy.git
+$ cd SpiceyPy
+\end{lstlisting}
+Now when I check the {\it setup.py} file, we see it requires {\it numpy}, {\it pytest}, {\it coveralls}, {\it coverage}, and {\it six}. I check and I already have {\it numpy} and {\it six} (via Macports. I search Macports and it also has {\it pytest} and {\it coverage}, so I install these
+\begin{lstlisting}[style=Bash]
+$ sudo port install py27-pytest
+$ sudo port install py27-coverage
+\end{lstlisting}
+Finally I install {\it coveralls} package via pip (like in the previous session)
+\begin{lstlisting}[style=Bash]
+$ pip install --user coveralls
+\end{lstlisting}
+At this point we have all the dependencies necessary to install SpicePy (and are still in its folder), and we install it to the User site-package folder as:
+\begin{lstlisting}[style=Bash]
+$ python setup.py install --user
+\end{lstlisting}
+Again the "-{}-user" option tell the the python package installing to send the package to the user location.
+
+Be sure to check dependencies, and be careful upgrading.
+
+
+\subsection{Spyder}
+Spyder is an IDE for python that uses python for the shell window and lets you watch variable grow and change. This can be very useful in development.
+\begin{lstlisting}[style=Bash]
+$ sudo port install py27-spyder
+\end{lstlisting}
+Now you can start up spyder from the by entering {\it spyder} at the command line. I am working on creating a {\it .app} to link to the Macports install.
+
+\subsubsection{Creating Spyder.app bundle}
+So some Macports packages create a ".app" package that is put in "/Applications/Macports/", which is then available in Launchpad (for instance TexShop and LaTeXit). We can create a simple .app package using Applescript editor.
+\begin{enumerate}
+	\item Open {\it AppleScript Editor} (Application$\rightarrow$Other$\rightarrow$AppleScript Editor), and click "New Document".
+	\item Enter the following lines into the editor:
+\end{enumerate}
+\begin{lstlisting}[style=Bash]
+tell application "Terminal"
+     do script "/opt/local/bin/spyder;exit"
+end tell
+\end{lstlisting}
+\begin{enumerate}
+	\setcounter{enumi}{2}
+	\item Save this script, and remember to:
+	\begin{itemize} 
+		\item Give it a name, ex. "Spyder"
+		\item Put it in a temporary place, ex "$\sim$/Desktop"
+		\item Change {\it File Format} to {\it Application}
+	\end{itemize}
+	\item (Optional) Change the icon
+	\begin{itemize}
+		\item I got the spyder icon (a {.icns} file has icon of several sizes for OS X to use) from \url{https://spyderlib.googlecode.com/hg/img_src/}
+		\item Control click on your new {\it Spyder.app}, and click {\it Get Info}.
+		\item Drag your new icon to the icon in the top left of the info window (you should see a green plus sign as to hover over to show you are about to change the image).
+	\end{itemize}
+	\item Move {\it Spyder.app} to the {\it /Application/Macports} folder, you will need to enter you password when trial to modify this folder. Now {\it Spyder.app} should appear in Launchpad. You can move it to where you like.
+	\item (optional) By default, the terminal will stay open after the "exit" call from the script. You can change this in "Terminal $\rightarrow$ Preferences $\rightarrow$ Settings $\rightarrow$ Shell" under "When shell exits" change this to "close"
+\end{enumerate}
+
+So that's it. You should be able to adjust the above instructions for any other executable (from Macports or elsewhere). I'm not sure how Macports will handle me modifying the {\it Application/Macports} folder. Hopefully it will just ignore the new .app as it updates.
+
+
+%%%%%
+%\subsection{Mayavi - 3d plotting (testing)}
+%The Mayavi is a package of advanced 3D plotting routines using the vtk5 library. I am trying it out for plotting 3D atmospheric profiles. 
+%
+%\begin{lstlisting}[style=Bash]
+%$ sudo port -v install vtk5 +python27 +qt4_mac -tcltk -x11
+%$ sudo port install py27-mayavi
+%\end{lstlisting}
+
+
+
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\section{\LaTeX}
+So the MacTex package installs everything one really needs to compile a latex file, including most available packages. Well I thought I might be clever and use MacPorts to trim some size off the install. Like Python there is the metaport called \textit{texlive} and then all the packaged add ons \textit{texlive-*}. These add ons are generally collection of packages (and associated docs), so some will be needed to compile a document. 
+
+Now the \textit{texlive} package has a few variants: \textit{minimal}, \textit{basic}, \textit{medium}, and \textit{full}. With \textit{minimal} you only get the Tex engine, and with \textit{basic} you get the Tex and Latex engines. The basic idea of \textit{medium} is to give you suggested packages, and then \textit{full} installs all the available package including documentation and is quite large. I find the \textit{medium} variant is $\sim$1.4GB, and the \textit{full} variant is $\sim$4.6GB. But the \textit{medium} port could not compile my latest article that needed the els-article package, this was found in \textit{texlive-publishers} port that was an additional 1GB (mostly due to its dependencies on \textit{textlive-latex-extraa}). So depending on how precious space is to you, you can decide which one to use. 
+
+I chose the default (\textit{medium}) and then installing necessary packages that I ended up needing. The website (\url{http://trac.macports.org/wiki/TeXLivePackages}) has a list of the packages included in the various \textit{texlive-*} ports that I used as a reference to find with port I needed. So my install went
+\begin{lstlisting}[style=Bash]
+$ sudo port install texlive
+	:
+	:
+$ sudo port install texlive-publishers
+\end{lstlisting}
+Now you have the executables \textit{tex}, \textit{latex}, \textit{pdflatex}, \textit{gs}, among others (including \textit{latex2ht} if you have found that to work for you). 
+
+
+\subsection{Leave out documentation}
+Try compiling with \textit{-doc} variant and the install will be a good deal smaller. This leaves out all the documentation stuff which I never seen before, so I guess I don't use it.
+\begin{lstlisting}[style=Bash]
+$ sudo port install texlive -doc
+\end{lstlisting}
+This install is now only $\sim$1.1GB (this is smaller than the MacTex installer!). I am happy...
+
+In the end I added "-doc" to my {\it variants.conf} file as in Section 2.1.1, in this way ensuring documentation is left out by default, and I install everything I need using:
+\begin{lstlisting}[style=Bash]
+$ sudo port install texlive texlive-publishers texlive-science 
+\end{lstlisting}
+
+\subsection{Latex utilities}
+Now MacPorts even has TexShop (but not BibDesk, that's OK, use Papers). 
+\begin{lstlisting}[style=Bash]
+$ sudo port install TeXShop3
+\end{lstlisting}
+This application then appear in LaunchPad (and in \textit{/Applications/MacPorts/} btw). Next you should open TexShop's preferences to tell TexShop to look in \textit{/opt/local/bin} for both \textit{latex} and \textit{gs}, but then you're good. 
+
+Also if you need a package or style files that is not in a port, or don't want to install a whole port, the \textit{~/Library/texmf} tree is there for you.
+
+
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\section{Maintenance}
+
+\subsection{Updating}
+Update is quite simple with MacPorts, just two steps. First update MacPorts so it knows the current set of ports. And second, update all of your installed ports (this may take some time depending on how often you do an update and what needs to be updated):
+\begin{lstlisting}[style=Bash]
+$ sudo port selfupdate
+$ sudo port upgrade outdated
+\end{lstlisting}
+
+
+\subsection{Basic cleaning}
+MacPorts tends not to uninstall old versions of ports that have been upgraded. So we can occasionally free up some space. First lets check to see how much space
+\begin{lstlisting}[style=Bash]
+$ du -sh /opt
+3.4G	/opt
+\end{lstlisting}
+Now we can execute the following commands to clean up our ports
+\begin{lstlisting}[style=Bash]
+$ sudo port clean --all installed
+$ sudo port -f uninstall inactive
+\end{lstlisting}
+Now check to see how much space you freed up.
+\begin{lstlisting}[style=Bash]
+$ du -sh /opt
+3.1G	/opt
+\end{lstlisting}
+
+
+\subsection{Checking Ports}
+If you want to see a list of ports that are installed
+\begin{lstlisting}[style=Bash]
+$ port echo installed
+\end{lstlisting}
+Well that was a whole bunch of junk. If you want to see the list of ports that you asked MacPorts to install, try
+\begin{lstlisting}[style=Bash]
+$ port echo installed and requested
+\end{lstlisting}
+Now if you want to check to see if any of your ports need to be update
+\begin{lstlisting}[style=Bash]
+$ port echo outdated
+\end{lstlisting}
+
+
+\subsection{Deleting a Port}
+Lets say your done with a port, or are upgrading to a newer version, or like me tried some variants that added a whole bunch of other ports to the installs. The basic command to uninstall a port is 
+\begin{lstlisting}[style=Bash]
+$ port uninstall vile
+\end{lstlisting}
+Here \textit{vile} is the name of the port we wish to uninstall. But this may leave a bunch of ports that were installed for the \textit{vile} port that are not used by any other ports around. These are called \textit{leaves} in MacPorts lingo. We can tell MacPorts to do a better by calling
+\begin{lstlisting}[style=Bash]
+$ sudo port uninstall --follow-dependencies vile
+\end{lstlisting}
+This will follow the port that {\it vile} depends on and uninstall them unless the port is used by another port. But this may not do a perfect job, maybe since some dependencies are used by other dependencies that weren't deleted first. We can check for more leaves by invoking
+\begin{lstlisting}[style=Bash]
+$ port echo leaves
+\end{lstlisting}
+If there are some leaves left, the go to advanced cleaning.
+
+
+\subsection{Advanced cleaning}
+If we have some leaves left around through updating or uninstalling, see a list of them.
+\begin{lstlisting}[style=Bash]
+$ port echo leaves
+\end{lstlisting}
+These are the ports that are not dependencies of any installed ports, but are not requested. Some of these ports are required for installation or updating, so we don't want to delete them, just to reinstall next time we update. So set these as requested with
+\begin{lstlisting}[style=Bash]
+$ sudo port setrequested autoconf automake pkgconfig
+\end{lstlisting}
+
+Now get to uninstalling the leaves, invoke:
+\begin{lstlisting}[style=Bash]
+$ sudo port uninstall leaves
+\end{lstlisting}
+Check for new leaves after this cleanup, and keep pruning until there are no leaves left.
+
+
+\subsection{Uninstalling}
+So maybe your unhappy with MacPorts, or, like me, you were playing around and want to restart clean. The following should clean up just about everything that MacPorts has put on your computer
+\begin{lstlisting}[style=Bash]
+$ sudo port -fp uninstall installed
+$ sudo rm -rf \
+    /opt/local \
+    /Applications/DarwinPorts \
+    /Applications/MacPorts \
+    /Library/LaunchDaemons/org.MacPorts.* \
+    /Library/Receipts/DarwinPorts*.pkg \
+    /Library/Receipts/MacPorts*.pkg \
+    /Library/StartupItems/DarwinPortsStartup \
+    /Library/Tcl/darwinports1.0 \
+    /Library/Tcl/MacPorts1.0 \
+    ~/.MacPorts
+\end{lstlisting}
+
+
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\appendix
+
+\section{My installed ports}
+
+In case you interesting in all the packages that I have installed here they are:
+\begin{lstlisting}[style=Bash]
+$ port echo installed and requested
+autoconf                       @2.69_5 
+automake                       @1.15_1 
+emacs                          @24.5_0 
+gcc48                          @4.8.5_0 
+git                            @2.4.5_0+bash_completion+credential_osxkeychain+pcre+perl5_16+python27+svn 
+gzip                           @1.6_0 
+hdf5                           @1.8.15-patch1_0+cxx+fortran+gcc48 
+openmpi                        @1.7.5_5 
+pandoc                         @1.12.4.2_1 
+pkgconfig                      @0.28_0 
+py27-coverage                  @3.7.1_0 
+py27-docopt                    @0.6.2_0 
+py27-h5py                      @2.5.0_1 
+py27-ipython                   @3.2.0_0+notebook+parallel+pyqt4 
+py27-matplotlib                @1.4.3_0+cairo+ghostscript+qt4+webagg 
+py27-numpy                     @1.9.2_0+atlas+gcc48 
+py27-openpyxl                  @2.2.4_1 
+py27-pip                       @7.0.3_0 
+py27-pyfits                    @3.3_0 
+py27-pytest                    @2.7.2_0 
+py27-scipy                     @0.15.1_0+atlas+gcc48 
+py27-yaml                      @3.11_0 
+python27                       @2.7.10_2 
+texlive                        @2014_0+medium 
+texlive-publishers             @34208_0 
+texlive-science                @33447_0 
+TeXShop3                       @3.51_0 
+wget                           @1.16.3_0+ssl 
+xclock                         @1.0.7_0 
+xeyes                          @1.1.1_0 
+xorg-server                    @1.16.4_0 
+\end{lstlisting}
+
+This represents the ports that I asked MacPorts to install. In all I have 392 ports installed to make these ones work, and such it the power of a package management system like MacPorts. 
+
+\subsection*{Ports not explained above:}
+\begin{description}
+	\item[git] I have fallen in love with this revision system. I use it took keep track of changes to my code, keep code updated between my computer and the computer clusters, and to share code development with collaborators.
+	\item[rsync] This was installed as a dependent of git, therefore not in the list above, but is ``a fast, versatile, remote (and local) file-copying tool''. It's a very nice tool to learn to get data back and forth between a local and remote machine.
+	\item[hdf5] This installs the library to read and write to hdf5 files, a binary file format for storing large arrays, images, and other things in a compact binary form. To compile with this library I add to the following to my compilation: "-L/opt/local/lib" to show where the library is installed, "-I/opt/local/include" to show where the ".mod" files are installed (for Fortran), and "-lhdf5" to link to library file libhdf5.a in the before mentioned folder. 
+	\item[py27-h5py] A python API to hdf5. Alternately, py27-tables also gives the ability to access HDF files and then some.
+	\item[py27-fits] A python API for fits files, another binary format, commonly used in planetary science (ie images and datasets from spacecraft).
+	\item[xorg-server] This installs the XQuartz package, which include X11 support for terminal. This is important if you plan to make a graphical connection to a remote machine (ie "ssh -X"). 
+\end{description}
+
+%\section{wxpython}
+%
+%\begin{lstlisting}[style=Bash]
+%$ sudo port install py27-wxpython
+%$ cp /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/matplotlib/mpl-data/matplotlibrc ~/.matplotlib/
+%\end{lstlisting}
+%
+%Then modify \textit{\textasciitilde/.matplotlib/matplotlibrc} from backend:MacOSX to backend: WXAgg
+
+\end{document}
