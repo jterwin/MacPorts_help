@@ -122,17 +122,17 @@ So we are not yet using the new \textit{gcc}. Lets see that its installed
 \begin{lstlisting}[style=Bash]
 $ port select --list gcc
 Available versions for gcc:
-	mp-gcc48
+	mp-gcc49
 	none (active)
 \end{lstlisting}
 We see that we have two options, but haven't told MacPorts which one we want to use. The \textit{none} option is the Apple supplied \textit{gcc}, and the \textit{mp-gcc48} is the new MacPorts \textit{gcc}. To select the new one, type in
 \begin{lstlisting}[style=Bash]
-$ sudo port select --set gcc mp-gcc48
+$ sudo port select --set gcc mp-gcc49
 \end{lstlisting}
 Test this
 \begin{lstlisting}[style=Bash]
 $ gcc -v
-    ->shows using Macports' gcc 4.8.5
+    ->shows using Macports' gcc 4.9.3
 $ gfortran -v
     ->the same
 \end{lstlisting}
@@ -144,7 +144,7 @@ Now your ready.
 \subsubsection{Set default MacPorts variant (optional)}
 Most ports in MacPorts depend on other ports, and further there are different variants we can add/choose from to set a particular dependent. The great thing about MacPorts is it keeps track of all these dependents and variants and will install exactly what you need. Unfortunately, when there are many different variants, there is also a default variant that has no clue about what we have already installed. For our purposes, I am concerned about which variant of \textit{gcc4x} the python ports are going to use. (For instance, \textit{py27-scipy} needs \textit{gfortran} so it depends on a \textit{gcc} port. The default variant for \textit{py27-scipy} could be \textit{gcc45}, and will download and build \textit{gcc45} if your not careful.)
 
-In order to get subsequent ports to use the \textit{gcc48} port we installed we can add the \textit{+gcc48} variant flag during the install. But checking every port that we want to install for variants, while probably good practice, can be cumbersome. There is a file \textit{/opt/local/etc/MacPorts/variants.config} that is the place to put the default variants we want to use, and will be applied to any port we try to install. If we add a variant and it doesn't exist for a particular port, then it will just be ignored.  
+In order to get subsequent ports to use the \textit{gcc49} port we installed we can add the \textit{+gcc49} variant flag during the install. But checking every port that we want to install for variants, while probably good practice, can be cumbersome. There is a file \textit{/opt/local/etc/MacPorts/variants.config} that is the place to put the default variants we want to use, and will be applied to any port we try to install. If we add a variant and it doesn't exist for a particular port, then it will just be ignored.  
 
 But this file is protected by system privileges. You can use the \textit{Finder$\rightarrow$Get Info} to change the privileges and then modify, or you can just run the following command to add to end of the file.
 \begin{lstlisting}[style=Bash]
@@ -158,7 +158,7 @@ I like to have the ability to develop and test MPI codes on my laptop. There are
 \begin{lstlisting}[style=Bash]
 $ sudo port install openmpi
 \end{lstlisting}
-Since I set "+gcc48" in my variants.conf, I know it is compiling towards the correct compiler. Now you should have \textit{mpif90} and \textit{mpiexec} installed (look at \textit{/opt/local/bin} for other mpi function you need).
+Since I set "+gcc49" in my variants.conf, I know it is compiling towards the correct compiler. Now you should have \textit{mpif90} and \textit{mpiexec} installed (look at \textit{/opt/local/bin} for other mpi function you need).
 
 
 
@@ -447,35 +447,27 @@ In case you interesting in all the packages that I have installed here they are:
 $ port echo installed and requested
 autoconf                       @2.69_5 
 automake                       @1.15_1 
-emacs                          @24.5_0 
-gcc48                          @4.8.5_0 
-git                            @2.4.5_0+bash_completion+credential_osxkeychain+pcre+perl5_16+python27+svn 
-gzip                           @1.6_0 
-hdf5                           @1.8.15-patch1_0+cxx+fortran+gcc48 
-openmpi                        @1.7.5_5 
+fftw-3                         @3.3.4_1+gcc49 
+gcc49                          @4.9.3_0 
+git                            @2.8.3_0+bash_completion+credential_osxkeychain+gitweb+pcre+perl5_22+python27+svn 
+hdf5                           @1.10.0_0+cxx+fortran+gcc49+hl 
+libcerf                        @1.4_0 
+openmpi                        @1.10.2_0 
 pandoc                         @1.12.4.2_1 
-pkgconfig                      @0.28_0 
-py27-coverage                  @3.7.1_0 
-py27-docopt                    @0.6.2_0 
-py27-h5py                      @2.5.0_1 
-py27-ipython                   @3.2.0_0+notebook+parallel+pyqt4 
-py27-matplotlib                @1.4.3_0+cairo+ghostscript+qt4+webagg 
-py27-numpy                     @1.9.2_0+atlas+gcc48 
-py27-openpyxl                  @2.2.4_1 
-py27-pip                       @7.0.3_0 
-py27-pyfits                    @3.3_0 
-py27-pytest                    @2.7.2_0 
-py27-scipy                     @0.15.1_0+atlas+gcc48 
-py27-yaml                      @3.11_0 
-python27                       @2.7.10_2 
-texlive                        @2014_0+medium 
-texlive-publishers             @34208_0 
-texlive-science                @33447_0 
-TeXShop3                       @3.51_0 
-wget                           @1.16.3_0+ssl 
-xclock                         @1.0.7_0 
-xeyes                          @1.1.1_0 
-xorg-server                    @1.16.4_0 
+py27-h5py                      @2.6.0_0+gcc49 
+py27-ipython                   @4.2.0_1+notebook 
+py27-matplotlib                @1.5.1_3+cairo+dvipng+ghostscript+latex 
+py27-notebook                  @4.2.1_0 
+py27-numpy                     @1.11.0_0+gcc49 
+py27-pip                       @8.1.2_0 
+py27-scipy                     @0.17.1_0+gcc49 
+python27                       @2.7.11_2 
+rsync                          @3.1.2_0 
+texlive                        @2015_0+medium 
+texlive-publishers             @37300_0 
+texlive-science                @37382_0 
+TeXShop3                       @3.62_0 
+xorg-server                    @1.18.3_1 
 \end{lstlisting}
 
 This represents the ports that I asked MacPorts to install. In all I have 392 ports installed to make these ones work, and such it the power of a package management system like MacPorts. 
@@ -486,7 +478,7 @@ This represents the ports that I asked MacPorts to install. In all I have 392 po
 	\item[rsync] This was installed as a dependent of git, therefore not in the list above, but is ``a fast, versatile, remote (and local) file-copying tool''. It's a very nice tool to learn to get data back and forth between a local and remote machine.
 	\item[hdf5] This installs the library to read and write to hdf5 files, a binary file format for storing large arrays, images, and other things in a compact binary form. To compile with this library I add to the following to my compilation: "-L/opt/local/lib" to show where the library is installed, "-I/opt/local/include" to show where the ".mod" files are installed (for Fortran), and "-lhdf5" to link to library file libhdf5.a in the before mentioned folder. 
 	\item[py27-h5py] A python API to hdf5. Alternately, py27-tables also gives the ability to access HDF files and then some.
-	\item[py27-fits] A python API for fits files, another binary format, commonly used in planetary science (ie images and datasets from spacecraft).
+%	\item[py27-fits] A python API for fits files, another binary format, commonly used in planetary science (ie images and datasets from spacecraft).
 	\item[xorg-server] This installs the XQuartz package, which include X11 support for terminal. This is important if you plan to make a graphical connection to a remote machine (ie "ssh -X"). 
 \end{description}
 
