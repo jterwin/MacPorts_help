@@ -62,9 +62,9 @@ Lastly I found Macports can be used to install Latex with a much smaller footpri
 %
 %
 \section{Install MacPort}
-This section may change slightly depending on your Mac version. I am now happily on 10.9 Mavericks and therefor the instruction below represent that install. 
+This section may change slightly depending on your Mac version. I am now happily on macOS Sierra10.12 Mavericks and therefor the instruction below represent that install. 
 \subsection{Xcode}
-First we need to get Xcode up an running. This is the develop IDL for Apple's computer and mobile platforms. Before we can use it from the we have to:
+First we need to get Xcode up an running. This is the development IDL for Apple's computer and mobile platforms. Before we can use the commandline for development we need:
 \begin{enumerate}
 	\item Install Xcode from the Mac App Store.
 	\item Accept the Xcode license agreement. Simply open Xcode and click through the menus for it to be happy.
@@ -73,27 +73,26 @@ First we need to get Xcode up an running. This is the develop IDL for Apple's co
 \begin{lstlisting}[style=Bash]
 $ xcode-select --install
 \end{lstlisting}
-This last step will differ depending on you OS. In some previous versions on Mac, the command line tools were install via "Preferences->Downloads", so figure out how to work with your install.
+This last step will differ depending on you OS. In some previous versions on Mac, the command line tools were install via "Preferences$\rightarrow$Downloads", so figure out how to work with your install.
 
 \subsection{MacPorts}
 Again just a couple simple steps here
 \begin{enumerate}
-	\item Get the MacPorts installer (\url{http://www.macports.org/install.php}) and run it. 
+	\item Get the MacPorts installer (\url{http://www.macports.org/install.php}) and run it. This installs in the directory "opt/local/bin" well out of the way of macOS's parts. It also modifies our PATH variable, which allows us to access the "port" command as well as the other programs we will install soon.
 	\item Then run an update to get the most current list of ports (called the tree). Enter the following into the command line:
 \end{enumerate}
 \begin{lstlisting}[style=Bash]
 $ sudo port selfupdate
 \end{lstlisting}
-Notice the use of "sudo", and that it will require you to enter your password. This is "super user do", and runs the following command with higher privileges (or root). Be careful with "sudo", and use only when you know what you're doing since it can modify anything on your computer. Let's just hope MacPorts has the kinks worked out.
+Notice the use of "sudo", and that it will require you to enter your password. This is because we are modifying files in the "/opt/loca/" folder, which is not in out home directory. This is "super user do", and runs the following command with higher privileges (or root). Be careful with "sudo", and use only when you know what you're doing since it can modify anything on your computer. Proceeding, we trust MacPorts has the kinks worked out.
 
-Now your ready to get some ports. It should have automatically updated your path in your \textit{.profile} file. You might also set some aliases here.  For example, I use AquaMacs as a text editor, and I set up some common calls to ls, so I have the following lines in my \textit{.profile}
+Now your ready to get some ports. It should have automatically updated your path in your \textit{.profile} file. You might also set some aliases here.  For example, I use AquaMacs as a text editor, and I set up some common calls to ls, so I have the following lines in my \textit{.profile} 
 \begin{lstlisting}[backgroundcolor=\color{light-gray},basicstyle=\ttfamily,xleftmargin=.25in,xrightmargin=.25in]
-# aliases for programs
-alias amacs="open -a /Applications/Aquamacs.app/"
-
-# ls with options
-alias ll="ls -lh"
-alias la="ls -lah"
+# some aliases
+alias ls='ls -GFh'
+alias ll='ls -l'
+alias la='ls -la'                         
+alias amacs='open -a /Applications/Aquamacs.app/'
 \end{lstlisting}
 
 
@@ -105,9 +104,9 @@ alias la="ls -lah"
 \subsection{Install gcc}
 There are many versions of gcc available, and I see no reason not to just get the current one. But depending on your projects and code, you may want to download a specific one that is known to be supported for your code. Also consider that many other ports may depend on gcc, and may have many variants to support different versions of \textit{gcc}. For example many Python modules depend on gcc, so you may want to look at the many python modules that you want and find that latest gcc version that they will support. Read the optional section below to set your configuration to have a default variant to avoid accidentally downloading multiple version of \textit{gcc}. 
 
-The latest stable version of gcc available via MacPorts is 4.8. So to install gcc 4.8, just type
+I will proceed by installing gcc 4.9. Even though gcc version 5 or 6 might work for most of my packages, I stick with the tried and tested 4 series as the gains of these newer version (namely build time) are not so important for me.
 \begin{lstlisting}[style=Bash]
-$ sudo port install gcc48
+$ sudo port install gcc49
 \end{lstlisting}
 Be prepared to sit back and wait. Depending on your computer this can take several hours of using 90 percent CPU. Just let it go and don't let the battery die.
 
@@ -132,13 +131,13 @@ $ sudo port select --set gcc mp-gcc49
 Test this
 \begin{lstlisting}[style=Bash]
 $ gcc -v
-    ->shows using Macports' gcc 4.9.3
+    ->shows using Macports' gcc 4.9.4
 $ gfortran -v
     ->the same
 \end{lstlisting}
 Now your ready. 
 
-(NOTE: the 'port select --set' make symbolic links to the correct gcc executable. Sometimes these don't get updated immediately. If you see the result of 'gcc -v' doesn't change, try opening a new terminal and see if it works. Its amazing what turning it off and on again can fix.)
+(NOTE: the 'port select --set' make symbolic links to the correct gcc executable. Sometimes these don't get updated immediately. If you see the result of 'gcc -v' doesn't change, try opening a new terminal and see if it works. It's amazing what turning a computer off and on again can fix.)
 
 
 \subsubsection{Set default MacPorts variant (optional)}
@@ -148,17 +147,17 @@ In order to get subsequent ports to use the \textit{gcc49} port we installed we 
 
 But this file is protected by system privileges. You can use the \textit{Finder$\rightarrow$Get Info} to change the privileges and then modify, or you can just run the following command to add to end of the file.
 \begin{lstlisting}[style=Bash]
-$ echo "+gcc48" | sudo tee -a /opt/local/etc/macports/variants.conf
+$ echo "+gcc49" | sudo tee -a /opt/local/etc/macports/variants.conf
 \end{lstlisting}
-I also put "+atlas" to get the accelerate linear algebra routines, but it not necessary.
+I also put "+openblas" to get the accelerate linear algebra routines, but it not necessary.
 
 
-\subsection{Install MPICH}
+\subsection{Install MPI}
 I like to have the ability to develop and test MPI codes on my laptop. There are two popular options, MPICH and OPENMPI, and for most users the differences are not apparent. So I choose OPENMPI because this is the one installed on my universities clusters, so this is the one I choose:
 \begin{lstlisting}[style=Bash]
 $ sudo port install openmpi
 \end{lstlisting}
-Since I set "+gcc49" in my variants.conf, I know it is compiling towards the correct compiler. Now you should have \textit{mpif90} and \textit{mpiexec} installed (look at \textit{/opt/local/bin} for other mpi function you need).
+Since I set "+gcc49" in my variants.conf, I know it is compiling towards the correct compiler. Now you should have \textit{mpif90} and \textit{mpiexec} installed (look at \textit{/opt/local/bin} for other mpi function you might need).
 
 
 
@@ -171,10 +170,9 @@ There are two parts the to install, first is the \textit{python} port.  I am cho
 
 Second are all the module add-ons for Python, and these are named \textit{py27-*} so that you know that they run on certain version of Python. To get everything we can just run
 \begin{lstlisting}[style=Bash]
-$ sudo port install python27 py27-numpy py27-scipy py27-matplotlib
-$ sudo port install py27-ipython +pyqt4 -scientific
+$ sudo port install python27 py27-numpy py27-scipy py27-matplotlib py27-ipython py27-notebook
 \end{lstlisting}
-Note that this will install many other python modules that these ones depend on, but don't worry the glory of MacPorts is that is handles all of this for you, it will just take some time. Be careful, since SciPy requires a \textit{gcc} version for \textit{gfortran}. So if you haven't set your \textit{variants.config} file, you may download and install another compiler (this can increase the full build time considerably, and having two versions of gcc requires extra space and increases the update times). Also I added some specific variant options for {\it ipython} which you may or may not want. 
+Note that this will install many other python modules that these ones depend on, but don't worry the glory of MacPorts is that is handles all of this for you, it will just take some time. Be careful, since SciPy requires a \textit{gcc} version for \textit{gfortran}. So if you haven't set your \textit{variants.config} file, you may download and install another compiler (this can increase the full build time considerably, and having two versions of gcc requires extra space and increases the update times). Notice that py27-ipython and py27-notebook were split into separate ports some time ago.
 
 Like with gcc we need to select the new python installs as the default:
 \begin{lstlisting}[style=Bash]
@@ -183,8 +181,12 @@ $ sudo port select --set ipython ipython27
 \end{lstlisting}
 to set the Python/IPython versions to the new ones. Now you can run your python scripts using "python myscipt.py", which will invoke your freshly installed Macports python with all your installed packages.
 
-(Note: to uses IPython excellent notebook feature (installed as a default variant), you may want to install "pandoc" to be able to save these a pdfs to print and share. pandoc is also very good to convert between many document types, including rst, doc, tex, etc.).
-
+{\textbf Notes:}
+\begin{itemize}
+	\item If you enjoy the excellent Python notebooks and wish to share them, you may want to install "pandoc" to be able to save these a pdfs to print and share. "pandoc" is also very good to convert between many document types, including rst, doc, tex, etc.
+	\item Numpy and Scipy use Blas and Lapack, in addition to gcc and gfortran, so they can take advantage of an accelerated framework. Atlas and OpenBlas are two excellent options. Remember to add one to you default variants list.
+	\item Matplotlib is excellent for plotting, but can also be use with different backends and to build gui applications. Look into the variants of this package. But don't worry, you can uninstall and reinstall with addition variants at a later time if you decide to take advantage of those.
+\end{itemize}
 
 
 \subsection{Installing modules not in Macports}
@@ -354,7 +356,7 @@ $ sudo port upgrade outdated
 MacPorts tends not to uninstall old versions of ports that have been upgraded. So we can occasionally free up some space. First lets check to see how much space
 \begin{lstlisting}[style=Bash]
 $ du -sh /opt
-3.4G	/opt
+6.8G	/opt/local
 \end{lstlisting}
 Now we can execute the following commands to clean up our ports
 \begin{lstlisting}[style=Bash]
@@ -364,7 +366,7 @@ $ sudo port -f uninstall inactive
 Now check to see how much space you freed up.
 \begin{lstlisting}[style=Bash]
 $ du -sh /opt
-3.1G	/opt
+6.5G	/opt
 \end{lstlisting}
 
 
@@ -381,7 +383,12 @@ Now if you want to check to see if any of your ports need to be update
 \begin{lstlisting}[style=Bash]
 $ port echo outdated
 \end{lstlisting}
-
+You can search, get info, and get detailed variant info on a port via
+\begin{lstlisting}[style=Bash]
+$ port search matplotlib
+$ port info py27-matplotlib
+$ port variants py27-matplotlib
+\end{lstlisting}
 
 \subsection{Deleting a Port}
 Lets say your done with a port, or are upgrading to a newer version, or like me tried some variants that added a whole bunch of other ports to the installs. The basic command to uninstall a port is 
@@ -445,40 +452,49 @@ $ sudo rm -rf \
 In case you interesting in all the packages that I have installed here they are:
 \begin{lstlisting}[style=Bash]
 $ port echo installed and requested
-autoconf                       @2.69_5 
-automake                       @1.15_1 
-fftw-3                         @3.3.4_1+gcc49 
-gcc49                          @4.9.3_0 
-git                            @2.8.3_0+bash_completion+credential_osxkeychain+gitweb+pcre+perl5_22+python27+svn 
-hdf5                           @1.10.0_0+cxx+fortran+gcc49+hl 
-libcerf                        @1.4_0 
-openmpi                        @1.10.2_0 
+doxygen                        @1.8.13_1 
+gcc49                          @4.9.4_0 
+ghc                            @7.8.3_5 
+git                            @2.11.0_0+credential_osxkeychain+gitweb+pcre+perl5_24+svn 
+graphviz                       @2.40.1_0+pangocairo+x11 
+hdf5                           @1.10.0-patch1_0+cxx+gcc49+hl 
+libcerf                        @1.5_0 
+nmap                           @7.40_0+pcre+ssl+subversion 
+OpenBLAS                       @0.2.19_0+gcc49+lapack 
+openmpi                        @1.10.3_0 
 pandoc                         @1.12.4.2_1 
 py27-h5py                      @2.6.0_0+gcc49 
-py27-ipython                   @4.2.0_1+notebook 
-py27-matplotlib                @1.5.1_3+cairo+dvipng+ghostscript+latex 
-py27-notebook                  @4.2.1_0 
-py27-numpy                     @1.11.0_0+gcc49 
-py27-pip                       @8.1.2_0 
-py27-scipy                     @0.17.1_0+gcc49 
-python27                       @2.7.11_2 
+py27-ipython                   @5.1.0_0 
+py27-matplotlib                @1.5.3_0+latex+pyside+qt4 
+py27-notebook                  @4.3.1_0 
+py27-numpy                     @1.11.3_0+gcc49+openblas 
+py27-pip                       @9.0.1_0 
+py27-scipy                     @0.18.1_0+gcc49+openblas 
+py27-sphinx                    @1.5.1_0 
+python27                       @2.7.13_0 
 rsync                          @3.1.2_0 
-texlive                        @2015_0+medium 
-texlive-publishers             @37300_0 
-texlive-science                @37382_0 
-TeXShop3                       @3.62_0 
-xorg-server                    @1.18.3_1 
+texlive                        @2016_0+medium 
+texlive-publishers             @41243_0 
+texlive-science                @41041_0 
+TeXShop3                       @3.75_0 
+xorg-server                    @1.18.4_1 
 \end{lstlisting}
 
 This represents the ports that I asked MacPorts to install. In all I have 392 ports installed to make these ones work, and such it the power of a package management system like MacPorts. 
 
 \subsection*{Ports not explained above:}
+
+As you can see I have a few more ports installed that I didn't explain above. I tried to give instruction for a minimalist development environment. After this, you should be able to find and install additional packages necessary for your needs.
+
 \begin{description}
+	\item[doxygen] This is a great tool to create documentation for your coding projects. For my large projects I can create interactive webpages with dependency graphs and detailed explanations for each function/subroutine and its inputs and outputs. The {\bf graphviz} package is needed to create call graphs.
 	\item[git] I have fallen in love with this revision system. I use it took keep track of changes to my code, keep code updated between my computer and the computer clusters, and to share code development with collaborators.
-	\item[rsync] This was installed as a dependent of git, therefore not in the list above, but is ``a fast, versatile, remote (and local) file-copying tool''. It's a very nice tool to learn to get data back and forth between a local and remote machine.
-	\item[hdf5] This installs the library to read and write to hdf5 files, a binary file format for storing large arrays, images, and other things in a compact binary form. To compile with this library I add to the following to my compilation: "-L/opt/local/lib" to show where the library is installed, "-I/opt/local/include" to show where the ".mod" files are installed (for Fortran), and "-lhdf5" to link to library file libhdf5.a in the before mentioned folder. 
-	\item[py27-h5py] A python API to hdf5. Alternately, py27-tables also gives the ability to access HDF files and then some.
+	\item[hdf5] This installs the library to read and write to hdf5 files, a binary file format for storing large arrays, images, and other things in a compact binary form. To compile with this library I add to the following to my compilation: "-L/opt/local/lib" to show where the library is installed, "-I/opt/local/include" to show where the ".mod" files are installed (for Fortran), and "-lhdf5" to link to library file libhdf5.a in the before mentioned folder. The {\bf py27-h5py} package is a python API to hdf5. Alternately, {\bf py27-tables} also gives the ability to access HDF files and then some.
 %	\item[py27-fits] A python API for fits files, another binary format, commonly used in planetary science (ie images and datasets from spacecraft).
+	\item[OpenBlas] This is an accelerate tuned library for BLAS and LAPACK routines. They can be a bit faster for large numerical problems involving linear systems (think matrices). Another option is {\bf ATLAS}, but after some. admittedly brief, googling I settled on this one. 
+	\item[pandoc] This is a capable document conversion tool. It can be used by {\bf py27-notebook} to save python notebooks as pdf's for printing and sharing. It can also be used to precess .md or .tex files into other formats, like .html or .docx.
+	\item[py27-sphinx] The standard documentation tool for python projects. Like {\bf doxygen} it can create nice documentation pages for your python projects. Once upon a time I tried to use this for my Fortran projects as well, but doxygen has better support (even if it is meant for c).
+	\item[rsync] This was installed as a dependent of git, therefore not in the list above, but is ``a fast, versatile, remote (and local) file-copying tool''. It's a very nice tool to learn to get data back and forth between a local and remote machine.
 	\item[xorg-server] This installs the XQuartz package, which include X11 support for terminal. This is important if you plan to make a graphical connection to a remote machine (ie "ssh -X"). 
 \end{description}
 
