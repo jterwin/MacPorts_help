@@ -452,12 +452,16 @@ $ sudo rm -rf \
 In case you interesting in all the packages that I have installed here they are:
 \begin{lstlisting}[style=Bash]
 $ port echo installed and requested
+autoconf                       @2.69_5 
+automake                       @1.15_1 
+bison                          @3.0.4_1 
+cmake                          @3.7.2_0 
 doxygen                        @1.8.13_1 
 gcc49                          @4.9.4_0 
 ghc                            @7.8.3_5 
 git                            @2.11.0_0+credential_osxkeychain+gitweb+pcre+perl5_24+svn 
 graphviz                       @2.40.1_0+pangocairo+x11 
-hdf5                           @1.10.0-patch1_0+cxx+gcc49+hl 
+hdf5                           @1.10.0-patch1_0+cxx+fortran+gcc49+hl 
 libcerf                        @1.5_0 
 nmap                           @7.40_0+pcre+ssl+subversion 
 OpenBLAS                       @0.2.19_0+gcc49+lapack 
@@ -480,13 +484,14 @@ TeXShop3                       @3.75_0
 xorg-server                    @1.18.4_1 
 \end{lstlisting}
 
-This represents the ports that I asked MacPorts to install. In all I have 392 ports installed to make these ones work, and such it the power of a package management system like MacPorts. 
+This represents the ports that I asked MacPorts to install. In all I currently have 320 ports installed to make these ones work, and such it the power of a package management system like MacPorts. 
 
 \subsection*{Ports not explained above:}
 
 As you can see I have a few more ports installed that I didn't explain above. I tried to give instruction for a minimalist development environment. After this, you should be able to find and install additional packages necessary for your needs.
 
 \begin{description}
+	\item[autoconf, automake, bison, cmake] ports commonly needed to build, but appear as leaves. I set them to requested so they would not be deleted when I clean
 	\item[doxygen] This is a great tool to create documentation for your coding projects. For my large projects I can create interactive webpages with dependency graphs and detailed explanations for each function/subroutine and its inputs and outputs. The {\bf graphviz} package is needed to create call graphs.
 	\item[git] I have fallen in love with this revision system. I use it took keep track of changes to my code, keep code updated between my computer and the computer clusters, and to share code development with collaborators.
 	\item[hdf5] This installs the library to read and write to hdf5 files, a binary file format for storing large arrays, images, and other things in a compact binary form. To compile with this library I add to the following to my compilation: "-L/opt/local/lib" to show where the library is installed, "-I/opt/local/include" to show where the ".mod" files are installed (for Fortran), and "-lhdf5" to link to library file libhdf5.a in the before mentioned folder. The {\bf py27-h5py} package is a python API to hdf5. Alternately, {\bf py27-tables} also gives the ability to access HDF files and then some.
