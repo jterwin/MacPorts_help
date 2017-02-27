@@ -1,5 +1,5 @@
 %\documentclass[11pt, titlepage]{article}
-\documentclass[11pt]{article}
+\documentclass[11pt, A4paper]{article}
 
 
 \usepackage{hyperref}
@@ -454,53 +454,82 @@ In case you interesting in all the packages that I have installed here they are:
 $ port echo installed and requested
 autoconf                       @2.69_5 
 automake                       @1.15_1 
-bison                          @3.0.4_1 
 cmake                          @3.7.2_0 
-doxygen                        @1.8.13_1 
-gcc49                          @4.9.4_0 
+doxygen                        @1.8.13_2 
+ffmpeg                         @3.2.2_4+gpl2+x11 
+gcc49                          @4.9.4_1 
+gdb                            @7.12_0 
 ghc                            @7.8.3_5 
-git                            @2.11.0_0+credential_osxkeychain+gitweb+pcre+perl5_24+svn 
-graphviz                       @2.40.1_0+pangocairo+x11 
+git                            @2.11.1_0+credential_osxkeychain+gitweb+pcre+perl5_24+svn 
+graphviz                       @2.40.1_1+pangocairo+x11 
 hdf5                           @1.10.0-patch1_0+cxx+fortran+gcc49+hl 
+ImageMagick                    @6.9.7-7_0+graphviz+rsvg+x11 
 libcerf                        @1.5_0 
 nmap                           @7.40_0+pcre+ssl+subversion 
 OpenBLAS                       @0.2.19_0+gcc49+lapack 
 openmpi                        @1.10.3_0 
 pandoc                         @1.12.4.2_1 
 py27-h5py                      @2.6.0_0+gcc49 
-py27-ipython                   @5.1.0_0 
-py27-matplotlib                @1.5.3_0+latex+pyside+qt4 
-py27-notebook                  @4.3.1_0 
-py27-numpy                     @1.11.3_0+gcc49+openblas 
+py27-ipython                   @5.2.2_0 
+py27-ipython                   @5.3.0_0 
+py27-matplotlib                @2.0.0_1+latex+pyside+qt4 
+py27-notebook                  @4.4.1_0 
+py27-numpy                     @1.12.0_0+gcc49+openblas 
 py27-pip                       @9.0.1_0 
 py27-scipy                     @0.18.1_0+gcc49+openblas 
-py27-sphinx                    @1.5.1_0 
-python27                       @2.7.13_0 
+py27-sphinx                    @1.5.2_0 
+python27                       @2.7.13_0+universal 
 rsync                          @3.1.2_0 
 texlive                        @2016_0+medium 
 texlive-publishers             @41243_0 
 texlive-science                @41041_0 
-TeXShop3                       @3.75_0 
+TeXShop3                       @3.77_0 
+valgrind                       @3.12.0_0+gcc49 
 xorg-server                    @1.18.4_1 
 \end{lstlisting}
 
-This represents the ports that I asked MacPorts to install. In all I currently have 320 ports installed to make these ones work, and such it the power of a package management system like MacPorts. 
+This represents the ports that I asked MacPorts to install. In all I currently have 481 ports installed to make these ones work, and such it the power of a package management system like MacPorts. 
 
 \subsection*{Ports not explained above:}
 
 As you can see I have a few more ports installed that I didn't explain above. I tried to give instruction for a minimalist development environment. After this, you should be able to find and install additional packages necessary for your needs.
 
 \begin{description}
-	\item[autoconf, automake, bison, cmake] ports commonly needed to build, but appear as leaves. I set them to requested so they would not be deleted when I clean
-	\item[doxygen] This is a great tool to create documentation for your coding projects. For my large projects I can create interactive webpages with dependency graphs and detailed explanations for each function/subroutine and its inputs and outputs. The {\bf graphviz} package is needed to create call graphs.
-	\item[git] I have fallen in love with this revision system. I use it took keep track of changes to my code, keep code updated between my computer and the computer clusters, and to share code development with collaborators.
-	\item[hdf5] This installs the library to read and write to hdf5 files, a binary file format for storing large arrays, images, and other things in a compact binary form. To compile with this library I add to the following to my compilation: "-L/opt/local/lib" to show where the library is installed, "-I/opt/local/include" to show where the ".mod" files are installed (for Fortran), and "-lhdf5" to link to library file libhdf5.a in the before mentioned folder. The {\bf py27-h5py} package is a python API to hdf5. Alternately, {\bf py27-tables} also gives the ability to access HDF files and then some.
-%	\item[py27-fits] A python API for fits files, another binary format, commonly used in planetary science (ie images and datasets from spacecraft).
-	\item[OpenBlas] This is an accelerate tuned library for BLAS and LAPACK routines. They can be a bit faster for large numerical problems involving linear systems (think matrices). Another option is {\bf ATLAS}, but after some. admittedly brief, googling I settled on this one. 
-	\item[pandoc] This is a capable document conversion tool. It can be used by {\bf py27-notebook} to save python notebooks as pdf's for printing and sharing. It can also be used to precess .md or .tex files into other formats, like .html or .docx.
-	\item[py27-sphinx] The standard documentation tool for python projects. Like {\bf doxygen} it can create nice documentation pages for your python projects. Once upon a time I tried to use this for my Fortran projects as well, but doxygen has better support (even if it is meant for c).
-	\item[rsync] This was installed as a dependent of git, therefore not in the list above, but is ``a fast, versatile, remote (and local) file-copying tool''. It's a very nice tool to learn to get data back and forth between a local and remote machine.
-	\item[xorg-server] This installs the XQuartz package, which include X11 support for terminal. This is important if you plan to make a graphical connection to a remote machine (ie "ssh -X"). 
+
+\item[autoconf, automake, cmake] ports commonly needed to build, but appear as leaves. I set them to requested so they would not be deleted when I clean
+
+\item[doxygen] This is a great tool to create documentation for your coding projects.
+For my large projects I can create interactive webpages with dependency graphs and detailed explanations for each function/subroutine and its inputs and outputs. 
+The {\bf graphviz} package is needed to create call graphs.
+
+\item[ffmpeg, ImageMagick] I use this as addition output formats for Matplotlib, namely to export animation to {\it .mpg} or {\it .gif}.
+ 
+\item[git] I have fallen in love with this revision system. 
+I use it took keep track of changes to my code, keep code updated between my computer and the computer clusters, and to share code development with collaborators.
+
+\item[hdf5] This installs the library to read and write to hdf5 files, a binary file format for storing large arrays, images, and other things in a compact binary form. 
+To compile with this library I add to the following to my compilation: "-L/opt/local/lib" to show where the library is installed, "-I/opt/local/include" to show where the ".mod" files are installed (for Fortran), and "-lhdf5" to link to library file libhdf5.a in the before mentioned folder. 
+The {\bf py27-h5py} package is a python API to hdf5. Alternately, {\bf py27-tables} also gives the ability to access HDF files and then some.
+
+\item[libcerf] a numerical scientific library that provides complex error function computations (here I use voigt).
+
+\item[OpenBlas] This is an accelerate tuned library for BLAS and LAPACK routines. 
+They can be a bit faster for large numerical problems involving linear systems (think matrices). 
+Another option is {\bf ATLAS}, but after some (admittedly brief) googling I settled on this one. 
+
+\item[pandoc] This is a capable document conversion tool. 
+It can be used by {\bf py27-notebook} to save python notebooks as pdf's for printing and sharing. 
+It can also be used to precess .md or .tex files into other formats, like .html or .docx.
+
+\item[py27-sphinx] The standard documentation tool for python projects. 
+Like {\bf doxygen} it can create nice documentation pages for your python projects. 
+Once upon a time I tried to use this for my Fortran projects as well, but doxygen has better support (even if it is meant for c).
+
+\item[rsync] This was installed as a dependent of git, therefore not in the list above, but is ``a fast, versatile, remote (and local) file-copying tool''. 
+It's a very nice tool to learn to get data back and forth between a local and remote machine.
+
+\item[xorg-server] This installs the XQuartz package, which include X11 support for terminal. 
+This is important if you plan to make a graphical connection to a remote machine (ie "ssh -X"). 
 \end{description}
 
 %\section{wxpython}
