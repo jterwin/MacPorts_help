@@ -104,11 +104,11 @@ alias amacs='open -a /Applications/Aquamacs.app/'
 \subsection{Install gcc}
 There are many versions of gcc available, and I see no reason not to just get the current one. But depending on your projects and code, you may want to download a specific one that is known to be supported for your code. Also consider that many other ports may depend on gcc, and may have many variants to support different versions of \textit{gcc}. For example many Python modules depend on gcc, so you may want to look at the many python modules that you want and find that latest gcc version that they will support. Read the optional section below to set your configuration to have a default variant to avoid accidentally downloading multiple version of \textit{gcc}. 
 
-I will proceed by installing gcc 4.9. Even though gcc version 5 or 6 might work for most of my packages, I stick with the tried and tested 4 series as the gains of these newer version (namely build time) are not so important for me.
+I will proceed by installing gcc 6. Even though gcc version 4.9, 5 or 7 might work for most of my packages, I stick with default 6 as the gains of these other versions (namely build time) are not so important for me.
 \begin{lstlisting}[style=Bash]
-$ sudo port install gcc49
+$ sudo port install gcc6
 \end{lstlisting}
-Be prepared to sit back and wait. Depending on your computer this can take several hours of using 90 percent CPU. Just let it go and don't let the battery die.
+Be prepared to sit back and wait. Depending on your computer this can take some time, while using 90 percent of the CPU. Just let it go and don't let the battery die.
 
 Now select this compiler. First try:
 \begin{lstlisting}[style=Bash]
@@ -121,17 +121,17 @@ So we are not yet using the new \textit{gcc}. Lets see that its installed
 \begin{lstlisting}[style=Bash]
 $ port select --list gcc
 Available versions for gcc:
-	mp-gcc49
+	mp-gcc6
 	none (active)
 \end{lstlisting}
 We see that we have two options, but haven't told MacPorts which one we want to use. The \textit{none} option is the Apple supplied \textit{gcc}, and the \textit{mp-gcc48} is the new MacPorts \textit{gcc}. To select the new one, type in
 \begin{lstlisting}[style=Bash]
-$ sudo port select --set gcc mp-gcc49
+$ sudo port select --set gcc mp-gcc6
 \end{lstlisting}
 Test this
 \begin{lstlisting}[style=Bash]
 $ gcc -v
-    ->shows using Macports' gcc 4.9.4
+    ->shows using Macports' gcc 6.4
 $ gfortran -v
     ->the same
 \end{lstlisting}
@@ -143,13 +143,13 @@ Now your ready.
 \subsubsection{Set default MacPorts variant (optional)}
 Most ports in MacPorts depend on other ports, and further there are different variants we can add/choose from to set a particular dependent. The great thing about MacPorts is it keeps track of all these dependents and variants and will install exactly what you need. Unfortunately, when there are many different variants, there is also a default variant that has no clue about what we have already installed. For our purposes, I am concerned about which variant of \textit{gcc4x} the python ports are going to use. (For instance, \textit{py27-scipy} needs \textit{gfortran} so it depends on a \textit{gcc} port. The default variant for \textit{py27-scipy} could be \textit{gcc45}, and will download and build \textit{gcc45} if your not careful.)
 
-In order to get subsequent ports to use the \textit{gcc49} port we installed we can add the \textit{+gcc49} variant flag during the install. But checking every port that we want to install for variants, while probably good practice, can be cumbersome. There is a file \textit{/opt/local/etc/MacPorts/variants.config} that is the place to put the default variants we want to use, and will be applied to any port we try to install. If we add a variant and it doesn't exist for a particular port, then it will just be ignored.  
+In order to get subsequent ports to use the \textit{gcc6} port we installed we can add the \textit{+gcc6} variant flag during the install. But checking every port that we want to install for variants, while probably good practice, can be cumbersome. There is a file \textit{/opt/local/etc/MacPorts/variants.config} that is the place to put the default variants we want to use, and will be applied to any port we try to install. If we add a variant and it doesn't exist for a particular port, then it will just be ignored.  
 
 But this file is protected by system privileges. You can use the \textit{Finder$\rightarrow$Get Info} to change the privileges and then modify, or you can just run the following command to add to end of the file.
 \begin{lstlisting}[style=Bash]
-$ echo "+gcc49" | sudo tee -a /opt/local/etc/macports/variants.conf
+$ echo "+gcc6" | sudo tee -a /opt/local/etc/macports/variants.conf
 \end{lstlisting}
-I also put "+openblas" to get the accelerate linear algebra routines, but it not necessary.
+I also put "+openblas" to get the accelerate linear algebra routines, but it's not necessary.
 
 
 \subsection{Install MPI}
@@ -157,7 +157,7 @@ I like to have the ability to develop and test MPI codes on my laptop. There are
 \begin{lstlisting}[style=Bash]
 $ sudo port install openmpi
 \end{lstlisting}
-Since I set "+gcc49" in my variants.conf, I know it is compiling towards the correct compiler. Now you should have \textit{mpif90} and \textit{mpiexec} installed (look at \textit{/opt/local/bin} for other mpi function you might need).
+Since I set "+gcc6" in my variants.conf, I know it is compiling towards the correct compiler. Now you should have \textit{mpif90} and \textit{mpiexec} installed (look at \textit{/opt/local/bin} for other mpi function you might need).
 
 
 
@@ -166,13 +166,13 @@ Since I set "+gcc49" in my variants.conf, I know it is compiling towards the cor
 %
 \section{Python}
 \subsection{Install Python and modules}
-There are two parts the to install, first is the \textit{python} port.  I am choosing Python 2.7 since some scientific packages do not support Python 3.x yet (n.b. Python 3.4 is latest Python 3 version available via Macports and support all the components I list here. Know that the  \textit{print} syntax has change between Python 2 and Python 2$\rightarrow$ frustrating, but this can be dealt with by using the \_\_future\_\_ module). So I choose the port \textit{python27}. 
+There are two parts the to install, first is the \textit{python} port.  I am choosing Python 2.7 since some scientific packages do not support Python 3.x yet (n.b. Python 3.6 is latest Python 3 version available via Macports and support all the components I list here. Know that the  \textit{print} syntax has change between Python 2 and Python 3$\rightarrow$ frustrating, but this can be dealt with by using the \_\_future\_\_ module). So I choose the port \textit{python27}. 
 
 Second are all the module add-ons for Python, and these are named \textit{py27-*} so that you know that they run on certain version of Python. To get everything we can just run
 \begin{lstlisting}[style=Bash]
-$ sudo port install python27 py27-numpy py27-scipy py27-matplotlib py27-ipython py27-notebook
+$ sudo port install python27 py27-numpy py27-scipy py27-matplotlib py27-ipython
 \end{lstlisting}
-Note that this will install many other python modules that these ones depend on, but don't worry the glory of MacPorts is that is handles all of this for you, it will just take some time. Be careful, since SciPy requires a \textit{gcc} version for \textit{gfortran}. So if you haven't set your \textit{variants.config} file, you may download and install another compiler (this can increase the full build time considerably, and having two versions of gcc requires extra space and increases the update times). Notice that py27-ipython and py27-notebook were split into separate ports some time ago.
+Note that this will install many other python modules that these ones depend on, but don't worry the glory of MacPorts is that is handles all of this for you, it will just take some time. Be careful, since SciPy requires a \textit{gcc} version for \textit{gfortran}. So if you haven't set your \textit{variants.config} file, you may download and install another compiler (this can increase the full build time considerably, and having two versions of gcc requires extra space and increases the update times).
 
 Like with gcc we need to select the new python installs as the default:
 \begin{lstlisting}[style=Bash]
@@ -183,6 +183,7 @@ to set the Python/IPython versions to the new ones. Now you can run your python 
 
 {\textbf Notes:}
 \begin{itemize}
+	\item If you want to make iPython notebooks, this was split from iPython some time ago, so install py27-jupyter.
 	\item If you enjoy the excellent Python notebooks and wish to share them, you may want to install "pandoc" to be able to save these a pdfs to print and share. "pandoc" is also very good to convert between many document types, including rst, doc, tex, etc.
 	\item Numpy and Scipy use Blas and Lapack, in addition to gcc and gfortran, so they can take advantage of an accelerated framework. Atlas and OpenBlas are two excellent options. Remember to add one to you default variants list.
 	\item Matplotlib is excellent for plotting, but can also be use with different backends and to build gui applications. Look into the variants of this package. But don't worry, you can uninstall and reinstall with addition variants at a later time if you decide to take advantage of those.
@@ -325,13 +326,13 @@ This install is now only $\sim$1.1GB (this is smaller than the MacTex installer!
 
 In the end I added "-doc" to my {\it variants.conf} file as in Section 2.1.1, in this way ensuring documentation is left out by default, and I install everything I need using:
 \begin{lstlisting}[style=Bash]
-$ sudo port install texlive texlive-publishers texlive-science 
+$ sudo port install texlive texlive-publishers
 \end{lstlisting}
 
 \subsection{Latex utilities}
 Now MacPorts even has TexShop (but not BibDesk, that's OK, use Papers). 
 \begin{lstlisting}[style=Bash]
-$ sudo port install TeXShop3
+$ sudo port install TeXShop4
 \end{lstlisting}
 This application then appear in LaunchPad (and in \textit{/Applications/MacPorts/} btw). Next you should open TexShop's preferences to tell TexShop to look in \textit{/opt/local/bin} for both \textit{latex} and \textit{gs}, but then you're good. 
 
@@ -356,17 +357,18 @@ $ sudo port upgrade outdated
 MacPorts tends not to uninstall old versions of ports that have been upgraded. So we can occasionally free up some space. First lets check to see how much space
 \begin{lstlisting}[style=Bash]
 $ du -sh /opt
-6.8G	/opt/local
+5.8G	/opt/local
 \end{lstlisting}
 Now we can execute the following commands to clean up our ports
 \begin{lstlisting}[style=Bash]
 $ sudo port clean --all installed
 $ sudo port -f uninstall inactive
 \end{lstlisting}
+{\bf NB} Now you can issue "sudo port reclaim" to do periodic cleaning. This performs the above steps along with some other cleaning.
 Now check to see how much space you freed up.
 \begin{lstlisting}[style=Bash]
 $ du -sh /opt
-6.5G	/opt
+5.4G	/opt
 \end{lstlisting}
 
 
@@ -427,17 +429,17 @@ Check for new leaves after this cleanup, and keep pruning until there are no lea
 So maybe your unhappy with MacPorts, or, like me, you were playing around and want to restart clean. The following should clean up just about everything that MacPorts has put on your computer
 \begin{lstlisting}[style=Bash]
 $ sudo port -fp uninstall installed
-$ sudo rm -rf \
-    /opt/local \
-    /Applications/DarwinPorts \
-    /Applications/MacPorts \
-    /Library/LaunchDaemons/org.MacPorts.* \
-    /Library/Receipts/DarwinPorts*.pkg \
-    /Library/Receipts/MacPorts*.pkg \
-    /Library/StartupItems/DarwinPortsStartup \
-    /Library/Tcl/darwinports1.0 \
-    /Library/Tcl/MacPorts1.0 \
-    ~/.MacPorts
+$ sudo rm -rf
+        /opt/local
+        /Applications/DarwinPorts
+        /Applications/MacPorts
+        /Library/LaunchDaemons/org.macports.*
+        /Library/Receipts/DarwinPorts*.pkg
+        /Library/Receipts/MacPorts*.pkg
+        /Library/StartupItems/DarwinPortsStartup
+        /Library/Tcl/darwinports1.0
+        /Library/Tcl/macports1.0
+        ~/.macports
 \end{lstlisting}
 
 
@@ -452,40 +454,33 @@ $ sudo rm -rf \
 In case you interesting in all the packages that I have installed here they are:
 \begin{lstlisting}[style=Bash]
 $ port echo installed and requested
-autoconf                       @2.69_5 
-automake                       @1.15_1 
-cmake                          @3.7.2_0 
 doxygen                        @1.8.13_2 
-ffmpeg                         @3.2.2_4+gpl2+x11 
-gcc49                          @4.9.4_1 
-gdb                            @7.12_0 
-ghc                            @7.8.3_5 
-git                            @2.11.1_0+credential_osxkeychain+gitweb+pcre+perl5_24+svn 
-graphviz                       @2.40.1_1+pangocairo+x11 
-hdf5                           @1.10.0-patch1_0+cxx+fortran+gcc49+hl 
-ImageMagick                    @6.9.7-7_0+graphviz+rsvg+x11 
+ffmpeg                         @4.0_1+gpl2 
+gcc6                           @6.4.0_1 
+git                            @2.17.1_0+credential_osxkeychain+pcre+perl5_26+svn 
+graphviz                       @2.40.1_1+pangocairo+python27+x11 
+hdf5                           @1.10.2_0+cxx+gcc6+hl 
+ImageMagick                    @6.9.9-40_0+x11 
 libcerf                        @1.5_0 
-nmap                           @7.40_0+pcre+ssl+subversion 
-OpenBLAS                       @0.2.19_0+gcc49+lapack 
-openmpi                        @1.10.3_0 
+nmap                           @7.70_0+pcre+ssl+subversion 
+OpenBLAS                       @0.3.0_0+clang+gcc6+lapack 
+openmpi                        @3.0.0_0 
 pandoc                         @1.12.4.2_1 
-py27-h5py                      @2.6.0_0+gcc49 
-py27-ipython                   @5.2.2_0 
-py27-ipython                   @5.3.0_0 
-py27-matplotlib                @2.0.0_1+latex+pyside+qt4 
-py27-notebook                  @4.4.1_0 
-py27-numpy                     @1.12.0_0+gcc49+openblas 
-py27-pip                       @9.0.1_0 
-py27-scipy                     @0.18.1_0+gcc49+openblas 
-py27-sphinx                    @1.5.2_0 
-python27                       @2.7.13_0+universal 
-rsync                          @3.1.2_0 
-texlive                        @2016_0+medium 
-texlive-publishers             @41243_0 
-texlive-science                @41041_0 
-TeXShop3                       @3.77_0 
-valgrind                       @3.12.0_0+gcc49 
-xorg-server                    @1.18.4_1 
+py27-h5py                      @2.7.0_3+gcc6 
+py27-ipython                   @5.4.0_0 
+py27-jupyter                   @1.0.0_1 
+py27-matplotlib                @2.2.2_0+latex+qt4 
+py27-mysql                     @1.2.3_1+mariadb55 
+py27-numpy                     @1.14.4_0+gcc6+openblas 
+py27-pip                       @10.0.1_0 
+py27-scikit-learn              @0.19.1_0 
+py27-scipy                     @1.1.0_0+gcc6+openblas 
+py27-sphinx                    @1.7.5_0 
+python27                       @2.7.15_0 
+texlive                        @2017_0+medium 
+texlive-publishers             @44368_0 
+TeXShop4                       @4.01_2 
+xorg-server                    @1.18.4_2 
 \end{lstlisting}
 
 This represents the ports that I asked MacPorts to install. In all I currently have 481 ports installed to make these ones work, and such it the power of a package management system like MacPorts. 
